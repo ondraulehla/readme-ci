@@ -1,7 +1,7 @@
 import type { ExecResult, RunnerOptions, Session } from '../types.js';
 
 const WORKDIR = '/home/user';
-const STATE_DIR = '/home/user/.readme-check';
+const STATE_DIR = '/home/user/.readme-ci';
 
 /**
  * Runs blocks in an E2B cloud sandbox (https://e2b.dev) – full isolation with

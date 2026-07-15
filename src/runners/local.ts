@@ -9,9 +9,9 @@ import type { ExecResult, RunnerOptions, Session } from '../types.js';
  * only use on markdown you trust (your own README in your own CI).
  */
 export async function startLocalSession(opts: RunnerOptions = {}): Promise<Session> {
-  const workdir = opts.mount ?? (await mkdtemp(join(tmpdir(), 'readme-check-')));
+  const workdir = opts.mount ?? (await mkdtemp(join(tmpdir(), 'readme-ci-')));
   const created = !opts.mount;
-  const stateDir = await mkdtemp(join(tmpdir(), 'readme-check-state-'));
+  const stateDir = await mkdtemp(join(tmpdir(), 'readme-ci-state-'));
 
   return {
     workdir,

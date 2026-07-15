@@ -71,7 +71,7 @@ export function wrapStep(
     body,
     `pwd > ${q(stateDir + '/cwd')}`,
     // environments can contain names bash cannot re-declare (npm exports
-    // `npm_package_bin_readme-check=...`, hyphen included) – persist only
+    // `npm_package_bin_readme-ci=...`, hyphen included) – persist only
     // variables that source back cleanly
     `export -p | grep -E '^declare -x [A-Za-z_][A-Za-z0-9_]*(=|$)' > ${q(stateDir + '/env')} || true`,
   ]

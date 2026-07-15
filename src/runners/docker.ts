@@ -5,7 +5,7 @@ import type { ExecResult, RunnerOptions, Session } from '../types.js';
 const execFileP = promisify(execFile);
 
 const WORKDIR = '/work';
-const STATE_DIR = '/work/.readme-check';
+const STATE_DIR = '/work/.readme-ci';
 
 /**
  * Runs blocks inside a throwaway Docker container. One container per markdown

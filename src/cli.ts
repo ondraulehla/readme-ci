@@ -5,10 +5,10 @@ import { checkFile } from './index.js';
 import { printStep, printSummary } from './report.js';
 import type { CheckOptions, FileReport } from './types.js';
 
-const HELP = `readme-check – run the code blocks in your README and fail when they break
+const HELP = `readme-ci – run the code blocks in your README and fail when they break
 
 Usage
-  readme-check [files...] [options]        (default file: README.md)
+  readme-ci [files...] [options]        (default file: README.md)
 
 Options
   --runner <docker|e2b|local>   where blocks run (default: docker)
@@ -20,11 +20,11 @@ Options
   -v, --version                 print version
 
 Control individual blocks with comments in the markdown:
-  <!-- readme-check skip -->
-  <!-- readme-check timeout=600 -->
-  <!-- readme-check cwd=examples FOO=bar -->
+  <!-- readme-ci skip -->
+  <!-- readme-ci timeout=600 -->
+  <!-- readme-ci cwd=examples FOO=bar -->
 
-Docs & examples: https://github.com/ondraulehla/readme-check`;
+Docs & examples: https://github.com/ondraulehla/readme-ci`;
 
 async function main(): Promise<number> {
   const { values, positionals } = parseArgs({

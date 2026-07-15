@@ -1,5 +1,5 @@
 {
-  "name": "readme-check",
+  "name": "readme-ci",
   "version": "0.1.0",
   "description": "Run the code blocks in your README and fail CI when your quickstart breaks.",
   "keywords": [
@@ -19,14 +19,14 @@
   "author": "Ondřej Úlehla <ondrejulehla@gmail.com>",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ondraulehla/readme-check.git"
+    "url": "git+https://github.com/ondraulehla/readme-ci.git"
   },
   "type": "module",
   "engines": {
     "node": ">=20"
   },
   "bin": {
-    "readme-check": "dist/cli.js"
+    "readme-ci": "dist/cli.js"
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

@@ -10,7 +10,7 @@ export interface CodeBlock {
   directives: Directives;
 }
 
-/** Per-block controls read from `<!-- readme-check ... -->` comments. */
+/** Per-block controls read from `<!-- readme-ci ... -->` comments. */
 export interface Directives {
   skip?: boolean;
   /** seconds */

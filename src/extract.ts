@@ -1,11 +1,11 @@
 import type { CodeBlock, Directives } from './types.js';
 
 const FENCE_OPEN = /^ {0,3}(`{3,}|~{3,})[ \t]*(.*)$/;
-const DIRECTIVE = /^ {0,3}<!--\s*readme-check\b(.*?)-->\s*$/;
+const DIRECTIVE = /^ {0,3}<!--\s*readme-ci\b(.*?)-->\s*$/;
 
 /**
  * Extract fenced code blocks from markdown source, together with any
- * `<!-- readme-check ... -->` directive comments that immediately precede
+ * `<!-- readme-ci ... -->` directive comments that immediately precede
  * them (blank lines in between are allowed).
  */
 export function extractBlocks(markdown: string, file: string): CodeBlock[] {

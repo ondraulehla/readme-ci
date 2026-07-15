@@ -1,4 +1,4 @@
-# readme-check
+# readme-ci
 
 **Run the code blocks in your README. Fail CI when your quickstart breaks.**
 
@@ -6,14 +6,14 @@ Every README promises `npm install && npm start` works. Then a dependency
 bumps, a flag is renamed, a file moves – and the first thing every new user
 sees is broken. Nobody notices, because nobody *executes* their docs.
 
-`readme-check` executes them. It extracts the fenced code blocks from your
+`readme-ci` executes them. It extracts the fenced code blocks from your
 markdown, runs them top-to-bottom in an isolated sandbox – state carries over
 between blocks exactly like a reader following along – and exits non-zero the
 moment a step breaks. Put it in CI and your quickstart can never silently rot
 again.
 
 ```console
-$ readme-check examples/demo.md
+$ readme-ci examples/demo.md
 
 examples/demo.md
   ✓ examples/demo.md:10 [bash] mkdir hello-app && cd hello-app (0.4s)
@@ -28,9 +28,9 @@ examples/demo.md
 
 ## Quickstart
 
-<!-- readme-check skip -->
+<!-- readme-ci skip -->
 ```bash
-npx github:ondraulehla/readme-check README.md
+npx readme-ci
 ```
 
 By default blocks run in a **throwaway Docker container** (`node:22-bookworm`),
@@ -45,7 +45,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: ondraulehla/readme-check@main
+      - uses: ondraulehla/readme-ci@main
         with:
           files: README.md docs/getting-started.md
 ```
@@ -70,9 +70,9 @@ jobs:
 Add a comment right above a fence:
 
 ```markdown
-<!-- readme-check skip -->
-<!-- readme-check timeout=600 -->
-<!-- readme-check cwd=examples NODE_ENV=production -->
+<!-- readme-ci skip -->
+<!-- readme-ci timeout=600 -->
+<!-- readme-ci cwd=examples NODE_ENV=production -->
 ```
 
 | directive     | effect                                              |
@@ -90,21 +90,21 @@ Add a comment right above a fence:
 | `e2b`             | cloud sandbox per file   | `npm i @e2b/code-interpreter` + `E2B_API_KEY` |
 | `local`           | none – temp dir on host  | nothing (only for markdown you trust)   |
 
-<!-- readme-check skip -->
+<!-- readme-ci skip -->
 ```bash
 # pick the image your quickstart expects
-readme-check --runner docker --image python:3.12-bookworm docs/tutorial.md
+readme-ci --runner docker --image python:3.12-bookworm docs/tutorial.md
 
 # no Docker around? run in an E2B cloud sandbox
-E2B_API_KEY=... readme-check --runner e2b README.md
+E2B_API_KEY=... readme-ci --runner e2b README.md
 
 # test the README against the repo it documents
-readme-check --runner docker --mount . README.md
+readme-ci --runner docker --mount . README.md
 ```
 
 ## Why not just unit tests?
 
-Unit tests check your code. `readme-check` checks the **contract with your
+Unit tests check your code. `readme-ci` checks the **contract with your
 users**: the exact commands you tell them to type. Those are the commands
 that break most often – install steps, CLI flags, config files – and the
 breakage is invisible until someone churns.
@@ -113,13 +113,13 @@ breakage is invisible until someone churns.
 
 - `--fix` mode: an AI agent proposes a patch to the README when a step fails
 - more languages (go, rust, ruby) and `Dockerfile`/compose-aware sessions
-- assertions on block output (`<!-- readme-check expect="2 + 2 = 4" -->`)
+- assertions on block output (`<!-- readme-ci expect="2 + 2 = 4" -->`)
 
 ## Contributing
 
 Issues and PRs welcome. The whole tool is small, typed and dependency-free –
 [`src/extract.ts`](src/extract.ts) parses, [`src/plan.ts`](src/plan.ts) plans,
-[`src/runners/`](src/runners) executes. CI runs `readme-check` on this repo's
+[`src/runners/`](src/runners) executes. CI runs `readme-ci` on this repo's
 own docs in all three runners.
 
 ## License

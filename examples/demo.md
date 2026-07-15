@@ -1,7 +1,7 @@
 # Demo quickstart
 
-This file is what `readme-check` sees in a typical README. Run it with:
-`readme-check examples/demo.md`. State carries over between blocks, exactly
+This file is what `readme-ci` sees in a typical README. Run it with:
+`readme-ci examples/demo.md`. State carries over between blocks, exactly
 like a reader following the steps.
 
 Create a tiny project:
@@ -39,7 +39,7 @@ it works
 
 Blocks you never want to run are skipped with a comment:
 
-<!-- readme-check skip -->
+<!-- readme-ci skip -->
 ```bash
 curl -fsSL https://example.com/install.sh | sh
 ```

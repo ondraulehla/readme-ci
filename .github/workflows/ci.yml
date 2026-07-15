@@ -17,7 +17,7 @@ jobs:
       - run: npm run build
       - run: npm test
 
-  # readme-check checks its own docs – in every supported runner
+  # readme-ci checks its own docs – in every supported runner
   dogfood-local:
     runs-on: ubuntu-latest
     steps:

@@ -38,13 +38,13 @@ describe('extractBlocks', () => {
 
   it('reads directives from preceding comments (blank lines allowed)', () => {
     const src = md(`
-  <!-- readme-check skip -->
+  <!-- readme-ci skip -->
 
   \`\`\`bash
   rm -rf /
   \`\`\`
 
-  <!-- readme-check timeout=42 cwd=examples FOO=bar BAZ=qu=ux -->
+  <!-- readme-ci timeout=42 cwd=examples FOO=bar BAZ=qu=ux -->
   \`\`\`bash
   ls
   \`\`\`
@@ -56,7 +56,7 @@ describe('extractBlocks', () => {
 
   it('ignores comments separated by prose', () => {
     const src = md(`
-  <!-- readme-check skip -->
+  <!-- readme-ci skip -->
   Some prose in between.
 
   \`\`\`bash

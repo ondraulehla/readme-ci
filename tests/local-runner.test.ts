@@ -56,12 +56,12 @@ describe('checkFile (local runner)', () => {
   it('honours skip directives and per-block timeouts', async () => {
     const file = await mdFile(
       [
-        '<!-- readme-check skip -->',
+        '<!-- readme-ci skip -->',
         '```bash',
         'exit 1',
         '```',
         '',
-        '<!-- readme-check timeout=1 -->',
+        '<!-- readme-ci timeout=1 -->',
         '```bash',
         'sleep 5',
         '```',

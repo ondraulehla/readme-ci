@@ -1,4 +1,4 @@
-name: readme-check
+name: readme-ci
 description: Run the code blocks in your README and fail CI when the quickstart breaks
 author: Ondřej Úlehla
 branding:
@@ -29,14 +29,14 @@ runs:
       with:
         node-version: 22
 
-    - name: Build readme-check
+    - name: Build readme-ci
       shell: bash
       run: |
         cd "${{ github.action_path }}"
         npm ci --ignore-scripts
         npm run build
 
-    - name: Run readme-check
+    - name: Run readme-ci
       shell: bash
       run: |
         ARGS=(--runner "${{ inputs.runner }}" --timeout "${{ inputs.timeout }}")
