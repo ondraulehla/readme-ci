@@ -67,8 +67,14 @@ export function buildPrompt(markdown: string, step: StepReport): string {
 export function claudeCliComplete(model: string): Complete {
   return (system, prompt) =>
     new Promise((resolve, reject) => {
+      // when readme-ci itself runs inside a Claude Code session, the inherited
+      // ANTHROPIC_BASE_URL points at the host session's proxy and breaks the
+      // nested CLI's own auth - drop it for the child in that case
+      const env = { ...process.env };
+      if (env.CLAUDECODE) delete env.ANTHROPIC_BASE_URL;
       const child = spawn('claude', ['-p', '--model', model], {
         stdio: ['pipe', 'pipe', 'pipe'],
+        env,
       });
       let stdout = '';
       let stderr = '';
