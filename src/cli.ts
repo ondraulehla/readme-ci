@@ -98,7 +98,14 @@ async function main(): Promise<number> {
         undefined,
         (attempt, round) => printFixAttempt(attempt, round),
       );
-      if (result.fixed) console.log(`\n  🔧 ${file} repaired – review the change with git diff`);
+      if (result.fixed) {
+        console.log(`\n  🔧 ${file} repaired – review the change with git diff`);
+        if (process.env.GITHUB_ACTIONS) {
+          console.log(
+            `::warning file=${file}::readme-ci repaired this file in the runner workspace only – commit the change or use the fix-pr action input`,
+          );
+        }
+      }
       reports.push(result.report);
     } else {
       reports.push(await checkFile(file, opts, (step) => printStep(step, opts.verbose)));

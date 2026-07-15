@@ -127,6 +127,29 @@ place for the re-run, and `<no_fix/>` from the model ends the loop cleanly.
 In CI, generate a long-lived token with `claude setup-token` and expose it as
 the `CLAUDE_CODE_OAUTH_TOKEN` secret – the `claude` CLI picks it up.
 
+### PR mode: robot breaks it, robot fixes it, human merges
+
+With `fix-pr: 'true'` the action opens a pull request containing the repaired
+markdown whenever `--fix` changed anything, so the fix lands through normal
+review instead of dying with the runner workspace:
+
+```yaml
+jobs:
+  readme:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ondraulehla/readme-ci@main
+        with:
+          files: README.md
+          fix-pr: 'true'
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+```
+
 ## Why not just unit tests?
 
 Unit tests check your code. `readme-ci` checks the **contract with your
@@ -136,7 +159,6 @@ breakage is invisible until someone churns.
 
 ## Roadmap
 
-- `--fix` PR mode: open a pull request with the repaired README from CI
 - more languages (go, rust, ruby) and `Dockerfile`/compose-aware sessions
 - assertions on block output (`<!-- readme-ci expect="2 + 2 = 4" -->`)
 

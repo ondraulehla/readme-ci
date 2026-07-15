@@ -22,7 +22,13 @@ inputs:
     description: Host directory to mount as the working dir (docker/local runner)
     default: ''
   fix:
-    description: Set to 'true' to let an AI model repair failing blocks (needs ANTHROPIC_API_KEY in env)
+    description: Set to 'true' to let an AI model repair failing blocks (needs ANTHROPIC_API_KEY or CLAUDE_CODE_OAUTH_TOKEN in env)
+    default: ''
+  fix-pr:
+    description: >-
+      Set to 'true' to open a pull request with the repaired markdown when --fix
+      changed anything. Requires `permissions: contents: write, pull-requests: write`
+      on the calling job. Implies fix.
     default: ''
 
 runs:
@@ -45,5 +51,19 @@ runs:
         ARGS=(--runner "${{ inputs.runner }}" --timeout "${{ inputs.timeout }}")
         [ -n "${{ inputs.image }}" ] && ARGS+=(--image "${{ inputs.image }}")
         [ -n "${{ inputs.mount }}" ] && ARGS+=(--mount "${{ inputs.mount }}")
-        [ "${{ inputs.fix }}" = "true" ] && ARGS+=(--fix)
+        [ "${{ inputs.fix }}" = "true" ] || [ "${{ inputs.fix-pr }}" = "true" ] && ARGS+=(--fix)
         node "${{ github.action_path }}/dist/cli.js" ${{ inputs.files }} "${ARGS[@]}"
+
+    - name: Open a pull request with the repaired docs
+      if: inputs.fix-pr == 'true'
+      uses: peter-evans/create-pull-request@v7
+      with:
+        commit-message: 'docs: repair broken code blocks (readme-ci --fix)'
+        title: 'docs: repair broken code blocks'
+        body: >-
+          `readme-ci --fix` found failing code blocks in the checked markdown,
+          asked the model for the smallest repair and verified the result by
+          re-running the file. Review the diff and merge if it matches the
+          documented intent.
+        branch: readme-ci/fix
+        delete-branch: true
