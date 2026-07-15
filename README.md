@@ -102,6 +102,21 @@ E2B_API_KEY=... readme-ci --runner e2b README.md
 readme-ci --runner docker --mount . README.md
 ```
 
+## `--fix`: let a model repair the block
+
+When a step fails, `readme-ci --fix` sends the failing block and its captured
+output to an AI model (Anthropic API, no SDK involved), applies the proposed
+edit to the markdown **in place**, and re-runs – up to `--fix-attempts` times.
+You review the result like any other change: `git diff`.
+
+<!-- readme-ci skip -->
+```bash
+ANTHROPIC_API_KEY=... readme-ci --fix README.md
+```
+
+Only the failing block is ever edited, earlier blocks' side effects stay in
+place for the re-run, and `<no_fix/>` from the model ends the loop cleanly.
+
 ## Why not just unit tests?
 
 Unit tests check your code. `readme-ci` checks the **contract with your
@@ -111,7 +126,7 @@ breakage is invisible until someone churns.
 
 ## Roadmap
 
-- `--fix` mode: an AI agent proposes a patch to the README when a step fails
+- `--fix` PR mode: open a pull request with the repaired README from CI
 - more languages (go, rust, ruby) and `Dockerfile`/compose-aware sessions
 - assertions on block output (`<!-- readme-ci expect="2 + 2 = 4" -->`)
 

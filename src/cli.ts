@@ -2,7 +2,7 @@
 import { parseArgs } from 'node:util';
 import { resolve } from 'node:path';
 import { checkFile } from './index.js';
-import { printStep, printSummary } from './report.js';
+import { printFixAttempt, printStep, printSummary } from './report.js';
 import type { CheckOptions, FileReport } from './types.js';
 
 const HELP = `readme-ci – run the code blocks in your README and fail when they break
@@ -15,6 +15,11 @@ Options
   --image <name>                docker image / E2B template (default: node:22-bookworm)
   --mount <path>                mount a host directory as the working dir (docker/local)
   --timeout <seconds>           per-block timeout (default: 300)
+  --fix                         on failure, ask an AI model to repair the block,
+                                apply the edit in place and re-run (needs
+                                ANTHROPIC_API_KEY; review changes with git diff)
+  --fix-model <id>              model for --fix (default: claude-sonnet-5)
+  --fix-attempts <n>            max repair rounds per file (default: 3)
   --verbose                     print stdout of passing blocks too
   -h, --help                    show this help
   -v, --version                 print version
@@ -34,6 +39,9 @@ async function main(): Promise<number> {
       image: { type: 'string' },
       mount: { type: 'string' },
       timeout: { type: 'string', default: '300' },
+      fix: { type: 'boolean', default: false },
+      'fix-model': { type: 'string', default: 'claude-sonnet-5' },
+      'fix-attempts': { type: 'string', default: '3' },
       verbose: { type: 'boolean', default: false },
       help: { type: 'boolean', short: 'h', default: false },
       version: { type: 'boolean', short: 'v', default: false },
@@ -76,7 +84,24 @@ async function main(): Promise<number> {
   const reports: FileReport[] = [];
   for (const file of files) {
     console.log(`\n${file}`);
-    reports.push(await checkFile(file, opts, (step) => printStep(step, opts.verbose)));
+    if (values.fix) {
+      const { fixFile } = await import('./fix.js');
+      const result = await fixFile(
+        file,
+        {
+          ...opts,
+          fixModel: values['fix-model'],
+          fixAttempts: Math.max(1, Number(values['fix-attempts']) || 3),
+        },
+        (step) => printStep(step, opts.verbose),
+        undefined,
+        (attempt, round) => printFixAttempt(attempt, round),
+      );
+      if (result.fixed) console.log(`\n  🔧 ${file} repaired – review the change with git diff`);
+      reports.push(result.report);
+    } else {
+      reports.push(await checkFile(file, opts, (step) => printStep(step, opts.verbose)));
+    }
   }
   printSummary(reports);
   return reports.some((r) => r.failed > 0) ? 1 : 0;

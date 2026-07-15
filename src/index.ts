@@ -9,6 +9,8 @@ import type { CheckOptions, FileReport, Session, StepReport } from './types.js';
 export { extractBlocks } from './extract.js';
 export { planBlock, wrapStep } from './plan.js';
 export * from './types.js';
+export { fixFile, replaceBlock, parseCompletion, buildPrompt } from './fix.js';
+export type { FixOptions, FixResult, FixAttempt, Complete } from './fix.js';
 
 async function startSession(opts: CheckOptions): Promise<Session> {
   switch (opts.runner) {

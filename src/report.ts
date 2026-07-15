@@ -1,3 +1,4 @@
+import type { FixAttempt } from './fix.js';
 import type { FileReport, StepReport } from './types.js';
 
 const tty = process.stdout.isTTY;
@@ -46,6 +47,14 @@ export function printStep(r: StepReport, verbose = false): void {
     const msg = `code block failed (${why}): ${preview(r.block.code)}`;
     console.log(`::error file=${r.block.file},line=${r.block.startLine}::${msg}`);
   }
+}
+
+export function printFixAttempt(a: FixAttempt, round: number): void {
+  const where = dim(`${a.block.file}:${a.block.startLine}`);
+  console.log(`\n  🔧 fix attempt ${round} ${where} – ${a.explanation || 'rewriting the failing block'}`);
+  for (const l of a.oldCode.split('\n')) console.log(red(`    - ${l}`));
+  for (const l of a.newCode.split('\n')) console.log(green(`    + ${l}`));
+  console.log('');
 }
 
 export function printSummary(reports: FileReport[]): void {

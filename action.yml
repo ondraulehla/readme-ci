@@ -21,6 +21,9 @@ inputs:
   mount:
     description: Host directory to mount as the working dir (docker/local runner)
     default: ''
+  fix:
+    description: Set to 'true' to let an AI model repair failing blocks (needs ANTHROPIC_API_KEY in env)
+    default: ''
 
 runs:
   using: composite
@@ -42,4 +45,5 @@ runs:
         ARGS=(--runner "${{ inputs.runner }}" --timeout "${{ inputs.timeout }}")
         [ -n "${{ inputs.image }}" ] && ARGS+=(--image "${{ inputs.image }}")
         [ -n "${{ inputs.mount }}" ] && ARGS+=(--mount "${{ inputs.mount }}")
+        [ "${{ inputs.fix }}" = "true" ] && ARGS+=(--fix)
         node "${{ github.action_path }}/dist/cli.js" ${{ inputs.files }} "${ARGS[@]}"
