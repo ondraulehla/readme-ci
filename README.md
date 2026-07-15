@@ -1,0 +1,127 @@
+# readme-check
+
+**Run the code blocks in your README. Fail CI when your quickstart breaks.**
+
+Every README promises `npm install && npm start` works. Then a dependency
+bumps, a flag is renamed, a file moves – and the first thing every new user
+sees is broken. Nobody notices, because nobody *executes* their docs.
+
+`readme-check` executes them. It extracts the fenced code blocks from your
+markdown, runs them top-to-bottom in an isolated sandbox – state carries over
+between blocks exactly like a reader following along – and exits non-zero the
+moment a step breaks. Put it in CI and your quickstart can never silently rot
+again.
+
+```console
+$ readme-check examples/demo.md
+
+examples/demo.md
+  ✓ examples/demo.md:10 [bash] mkdir hello-app && cd hello-app (0.4s)
+  ✓ examples/demo.md:18 [bash] test -f package.json (0.3s)
+  ✓ examples/demo.md:26 [js] const pkg = { name: 'hello-app' }; (0.5s)
+  ✓ examples/demo.md:30 [python] print("2 + 2 =", 2 + 2) (0.4s)
+  ✓ examples/demo.md:36 [console] $ echo it works (0.3s)
+  ○ examples/demo.md:44 [bash] curl -fsSL https://example.com/install.sh | sh – skipped (directive)
+
+✓ 5 passed
+```
+
+## Quickstart
+
+<!-- readme-check skip -->
+```bash
+npx github:ondraulehla/readme-check README.md
+```
+
+By default blocks run in a **throwaway Docker container** (`node:22-bookworm`),
+so your machine is never touched. One container per file – `cd`, exported
+variables and installed packages persist from block to block.
+
+Or as a **GitHub Action**:
+
+```yaml
+jobs:
+  readme:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ondraulehla/readme-check@main
+        with:
+          files: README.md docs/getting-started.md
+```
+
+## How it works
+
+1. Fenced blocks are extracted with their line numbers.
+2. Each block is planned by language:
+   - `bash` / `sh` / `shell` / `zsh` → run as a shell script (`set -e`)
+   - `console` / `terminal` → only the `$ `-prefixed lines run; output lines are prose
+   - `js` / `javascript` → run with `node`
+   - `python` / `py` → run with `python3`
+   - anything else (`json`, `yaml`, …) → ignored automatically
+3. Blocks execute in order inside one session. Working directory and
+   environment survive between blocks, so multi-step quickstarts just work.
+4. The first failing block fails the file (broken step ⇒ the rest is
+   meaningless), prints the captured output, and – inside GitHub Actions –
+   annotates the exact line of your markdown.
+
+## Controlling blocks
+
+Add a comment right above a fence:
+
+```markdown
+<!-- readme-check skip -->
+<!-- readme-check timeout=600 -->
+<!-- readme-check cwd=examples NODE_ENV=production -->
+```
+
+| directive     | effect                                              |
+| ------------- | --------------------------------------------------- |
+| `skip`        | never run this block                                |
+| `timeout=N`   | per-block timeout in seconds (default 300)          |
+| `cwd=path`    | run in this directory (relative to the session)     |
+| `KEY=value`   | export an environment variable for this block       |
+
+## Runners
+
+| runner            | isolation                | needs                                   |
+| ----------------- | ------------------------ | --------------------------------------- |
+| `docker` (default)| container per file       | Docker                                  |
+| `e2b`             | cloud sandbox per file   | `npm i @e2b/code-interpreter` + `E2B_API_KEY` |
+| `local`           | none – temp dir on host  | nothing (only for markdown you trust)   |
+
+<!-- readme-check skip -->
+```bash
+# pick the image your quickstart expects
+readme-check --runner docker --image python:3.12-bookworm docs/tutorial.md
+
+# no Docker around? run in an E2B cloud sandbox
+E2B_API_KEY=... readme-check --runner e2b README.md
+
+# test the README against the repo it documents
+readme-check --runner docker --mount . README.md
+```
+
+## Why not just unit tests?
+
+Unit tests check your code. `readme-check` checks the **contract with your
+users**: the exact commands you tell them to type. Those are the commands
+that break most often – install steps, CLI flags, config files – and the
+breakage is invisible until someone churns.
+
+## Roadmap
+
+- `--fix` mode: an AI agent proposes a patch to the README when a step fails
+- more languages (go, rust, ruby) and `Dockerfile`/compose-aware sessions
+- assertions on block output (`<!-- readme-check expect="2 + 2 = 4" -->`)
+
+## Contributing
+
+Issues and PRs welcome. The whole tool is small, typed and dependency-free –
+[`src/extract.ts`](src/extract.ts) parses, [`src/plan.ts`](src/plan.ts) plans,
+[`src/runners/`](src/runners) executes. CI runs `readme-check` on this repo's
+own docs in all three runners.
+
+## License
+
+MIT © Ondřej Úlehla

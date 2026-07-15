@@ -1,0 +1,56 @@
+{
+  "name": "readme-check",
+  "version": "0.1.0",
+  "description": "Run the code blocks in your README and fail CI when your quickstart breaks.",
+  "keywords": [
+    "readme",
+    "documentation",
+    "docs",
+    "ci",
+    "quickstart",
+    "markdown",
+    "code-blocks",
+    "testing",
+    "github-actions",
+    "e2b",
+    "sandbox"
+  ],
+  "license": "MIT",
+  "author": "Ondřej Úlehla <ondrejulehla@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ondraulehla/readme-check.git"
+  },
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "bin": {
+    "readme-check": "dist/cli.js"
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "action.yml"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "prepare": "npm run build",
+    "test": "vitest run",
+    "check": "node dist/cli.js examples/demo.md --runner local"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "typescript": "^5.6.0",
+    "vitest": "^4.0.0"
+  },
+  "peerDependencies": {
+    "@e2b/code-interpreter": ">=1.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@e2b/code-interpreter": {
+      "optional": true
+    }
+  }
+}

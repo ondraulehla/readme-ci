@@ -1,0 +1,45 @@
+name: readme-check
+description: Run the code blocks in your README and fail CI when the quickstart breaks
+author: Ondřej Úlehla
+branding:
+  icon: book-open
+  color: orange
+
+inputs:
+  files:
+    description: Space-separated markdown files to check
+    default: README.md
+  runner:
+    description: Where blocks run – docker, e2b or local
+    default: docker
+  image:
+    description: Docker image (docker runner) or E2B template (e2b runner)
+    default: ''
+  timeout:
+    description: Per-block timeout in seconds
+    default: '300'
+  mount:
+    description: Host directory to mount as the working dir (docker/local runner)
+    default: ''
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-node@v4
+      with:
+        node-version: 22
+
+    - name: Build readme-check
+      shell: bash
+      run: |
+        cd "${{ github.action_path }}"
+        npm ci --ignore-scripts
+        npm run build
+
+    - name: Run readme-check
+      shell: bash
+      run: |
+        ARGS=(--runner "${{ inputs.runner }}" --timeout "${{ inputs.timeout }}")
+        [ -n "${{ inputs.image }}" ] && ARGS+=(--image "${{ inputs.image }}")
+        [ -n "${{ inputs.mount }}" ] && ARGS+=(--mount "${{ inputs.mount }}")
+        node "${{ github.action_path }}/dist/cli.js" ${{ inputs.files }} "${ARGS[@]}"
