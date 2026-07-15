@@ -16,8 +16,9 @@ Options
   --mount <path>                mount a host directory as the working dir (docker/local)
   --timeout <seconds>           per-block timeout (default: 300)
   --fix                         on failure, ask an AI model to repair the block,
-                                apply the edit in place and re-run (needs
-                                ANTHROPIC_API_KEY; review changes with git diff)
+                                apply the edit in place and re-run. Uses
+                                ANTHROPIC_API_KEY, or your Claude Code login
+                                (the claude CLI) when no key is set.
   --fix-model <id>              model for --fix (default: claude-sonnet-5)
   --fix-attempts <n>            max repair rounds per file (default: 3)
   --verbose                     print stdout of passing blocks too

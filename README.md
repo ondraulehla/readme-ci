@@ -105,17 +105,27 @@ readme-ci --runner docker --mount . README.md
 ## `--fix`: let a model repair the block
 
 When a step fails, `readme-ci --fix` sends the failing block and its captured
-output to an AI model (Anthropic API, no SDK involved), applies the proposed
-edit to the markdown **in place**, and re-runs – up to `--fix-attempts` times.
-You review the result like any other change: `git diff`.
+output to an AI model, applies the proposed edit to the markdown **in place**,
+and re-runs – up to `--fix-attempts` times. You review the result like any
+other change: `git diff`.
+
+Two ways to authenticate, in order of precedence:
 
 <!-- readme-ci skip -->
 ```bash
+# 1. an Anthropic API key (direct Messages API call – no SDK, still zero deps)
 ANTHROPIC_API_KEY=... readme-ci --fix README.md
+
+# 2. no key? if you use Claude Code, your existing login is enough –
+#    readme-ci talks to the local `claude` CLI instead
+readme-ci --fix README.md
 ```
 
 Only the failing block is ever edited, earlier blocks' side effects stay in
 place for the re-run, and `<no_fix/>` from the model ends the loop cleanly.
+
+In CI, generate a long-lived token with `claude setup-token` and expose it as
+the `CLAUDE_CODE_OAUTH_TOKEN` secret – the `claude` CLI picks it up.
 
 ## Why not just unit tests?
 

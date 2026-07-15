@@ -2,7 +2,7 @@ import { mkdtemp, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { buildPrompt, fixFile, parseCompletion, replaceBlock } from '../src/fix.js';
+import { buildPrompt, claudeCliComplete, fixFile, parseCompletion, replaceBlock } from '../src/fix.js';
 import { extractBlocks } from '../src/extract.js';
 import type { FixOptions } from '../src/fix.js';
 
@@ -56,6 +56,28 @@ describe('buildPrompt', () => {
     expect(prompt).toContain('boom');
     expect(prompt).toContain('command not found');
     expect(prompt).toContain('Exit code: 127');
+  });
+});
+
+describe('claudeCliComplete', () => {
+  it('pipes system+prompt to a `claude` CLI on PATH and returns its stdout', async () => {
+    const { mkdtemp: mkd, writeFile: wf, chmod } = await import('node:fs/promises');
+    const dir = await mkd(join(tmpdir(), 'rc-cli-'));
+    const fake = join(dir, 'claude');
+    await wf(
+      fake,
+      '#!/bin/bash\ncat > /dev/null\necho "<explanation>x</explanation><fixed_block>"\necho "echo ok"\necho "</fixed_block>"\n',
+      'utf8',
+    );
+    await chmod(fake, 0o755);
+    const oldPath = process.env.PATH;
+    process.env.PATH = `${dir}:${oldPath}`;
+    try {
+      const out = await claudeCliComplete('test-model')('system', 'prompt');
+      expect(parseCompletion(out)?.code).toBe('echo ok');
+    } finally {
+      process.env.PATH = oldPath;
+    }
   });
 });
 

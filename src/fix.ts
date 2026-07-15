@@ -1,3 +1,4 @@
+import { spawn, spawnSync } from 'node:child_process';
 import { readFile, writeFile } from 'node:fs/promises';
 import { checkFile } from './index.js';
 import { extractBlocks } from './extract.js';
@@ -58,7 +59,58 @@ export function buildPrompt(markdown: string, step: StepReport): string {
   ].join('\n');
 }
 
-/** Default completer: the Anthropic Messages API via plain fetch (no SDK). */
+/**
+ * Completer backed by the local `claude` CLI (Claude Code) – uses whatever
+ * login the user already has (subscription or CLAUDE_CODE_OAUTH_TOKEN), so no
+ * separate API key is needed.
+ */
+export function claudeCliComplete(model: string): Complete {
+  return (system, prompt) =>
+    new Promise((resolve, reject) => {
+      const child = spawn('claude', ['-p', '--model', model], {
+        stdio: ['pipe', 'pipe', 'pipe'],
+      });
+      let stdout = '';
+      let stderr = '';
+      const timer = setTimeout(() => child.kill('SIGKILL'), 180_000);
+      child.on('error', () => {
+        clearTimeout(timer);
+        reject(new Error('failed to spawn the claude CLI'));
+      });
+      child.stdout.on('data', (d) => (stdout += d));
+      child.stderr.on('data', (d) => (stderr += d));
+      child.on('close', (code) => {
+        clearTimeout(timer);
+        if (code === 0) resolve(stdout);
+        else reject(new Error(`claude CLI exited ${code}: ${stderr.slice(0, 300)}`));
+      });
+      child.stdin.end(`${system}\n\n${prompt}`);
+    });
+}
+
+/**
+ * Pick the completer for --fix: a raw API key wins, otherwise fall back to
+ * the Claude Code CLI when it is installed.
+ */
+export function defaultComplete(model: string): Complete {
+  if (process.env.ANTHROPIC_API_KEY) return anthropicComplete(model);
+  if (cliAvailable()) return claudeCliComplete(model);
+  return async () => {
+    throw new Error(
+      '--fix needs ANTHROPIC_API_KEY, or the `claude` CLI (Claude Code) installed and logged in',
+    );
+  };
+}
+
+function cliAvailable(): boolean {
+  try {
+    return spawnSync('claude', ['--version'], { stdio: 'ignore', timeout: 10_000 }).status === 0;
+  } catch {
+    return false;
+  }
+}
+
+/** Completer for the Anthropic Messages API via plain fetch (no SDK). */
 export function anthropicComplete(model: string): Complete {
   return async (system, prompt) => {
     const key = process.env.ANTHROPIC_API_KEY;
@@ -126,7 +178,7 @@ export async function fixFile(
   file: string,
   opts: FixOptions,
   onStep?: (r: StepReport) => void,
-  complete: Complete = anthropicComplete(opts.fixModel),
+  complete: Complete = defaultComplete(opts.fixModel),
   onAttempt?: (a: FixAttempt, round: number) => void,
 ): Promise<FixResult> {
   const attempts: FixAttempt[] = [];
