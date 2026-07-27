@@ -1,5 +1,10 @@
 # readme-ci
 
+[![CI](https://github.com/ondraulehla/readme-ci/actions/workflows/ci.yml/badge.svg)](https://github.com/ondraulehla/readme-ci/actions/workflows/ci.yml)
+[![npm](https://img.shields.io/npm/v/readme-ci)](https://www.npmjs.com/package/readme-ci)
+[![docs checked by readme-ci](https://img.shields.io/badge/docs-checked%20by%20readme--ci-orange)](https://github.com/ondraulehla/readme-ci/actions/workflows/ci.yml)
+[![license](https://img.shields.io/npm/l/readme-ci)](LICENSE)
+
 **Run the code blocks in your README. Fail CI when your quickstart breaks.**
 
 Every README promises `npm install && npm start` works. Then a dependency
@@ -45,7 +50,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: ondraulehla/readme-ci@main
+      - uses: ondraulehla/readme-ci@v1
         with:
           files: README.md docs/getting-started.md
 ```
@@ -142,7 +147,7 @@ jobs:
       pull-requests: write
     steps:
       - uses: actions/checkout@v4
-      - uses: ondraulehla/readme-ci@main
+      - uses: ondraulehla/readme-ci@v1
         with:
           files: README.md
           fix-pr: 'true'
