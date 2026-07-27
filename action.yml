@@ -1,6 +1,6 @@
 name: readme-ci
 description: Run the code blocks in your README and fail CI when the quickstart breaks
-author: Ondřej Úlehla
+author: Ondrej Ulehla
 branding:
   icon: book-open
   color: orange
@@ -10,7 +10,7 @@ inputs:
     description: Space-separated markdown files to check
     default: README.md
   runner:
-    description: Where blocks run – docker, e2b or local
+    description: Where blocks run - docker, e2b or local
     default: docker
   image:
     description: Docker image (docker runner) or E2B template (e2b runner)
