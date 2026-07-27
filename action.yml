@@ -1,4 +1,4 @@
-name: readme-ci
+name: readme-ci docs check
 description: Run the code blocks in your README and fail CI when the quickstart breaks
 author: Ondrej Ulehla
 branding:
