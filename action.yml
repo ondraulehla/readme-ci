@@ -1,6 +1,6 @@
 name: readme-ci docs check
 description: Run the code blocks in your README and fail CI when the quickstart breaks
-author: Ondrej Ulehla
+author: Ondřej Úlehla
 branding:
   icon: book-open
   color: orange
@@ -34,7 +34,7 @@ inputs:
 runs:
   using: composite
   steps:
-    - uses: actions/setup-node@v4
+    - uses: actions/setup-node@v7
       with:
         node-version: 22
 
